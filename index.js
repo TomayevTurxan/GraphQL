@@ -5,7 +5,7 @@ import { startStandaloneServer } from "@apollo/server/standalone";
 const userData = {
   currentPage: 1,
   pageSize: 5,
-  totalCount: 25,
+  totalCount: 10,
   hasNextPage: false,
   hasPreviousPage: false,
   users: [

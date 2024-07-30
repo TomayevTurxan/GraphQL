@@ -20,7 +20,8 @@ const GET_USERS = gql`
 
 function App() {
   const { loading, error, data } = useQuery(GET_USERS);
-  const [currentPage, setCurrentPage] = useState(1);
+  const [currentPage, setCurrentPage] = useState();
+  const [filterdData, setFilterdData] = useState([]);
   const pageSize = 3;
 
   if (loading) return <p>Loading...</p>;
@@ -34,12 +35,8 @@ function App() {
     return <p>No data available</p>;
   }
 
-  // Calculate the paginated data
-  const startIndex = (currentPage - 1) * pageSize;
-  const endIndex = currentPage * pageSize;
-  const paginatedData = data.users.users.slice(startIndex, endIndex);
-
-  // Format filters for the column
+  const userData = filterdData.length > 0 ? filterdData : data.users.users;
+  console.log("userData", userData);
   const names = data.users.users.map((user) => user.userName);
   const filters = names.map((name) => ({
     text: name,
@@ -64,11 +61,20 @@ function App() {
   ];
 
   const onChange = (pagination, filters, sorter, extra) => {
-    console.log("params", pagination, filters, sorter, extra);
+    if (filters.userName) {
+      const filtersData = data.users.users.filter((user) =>
+        user.userName.includes(filters.userName[0])
+      );
+      console.log("filtersData", filtersData);
+      setFilterdData(filtersData);
+    } else {
+      setFilterdData([]);
+    }
   };
 
   const handlePageChange = (page) => {
     setCurrentPage(page);
+    console.log("page", page);
   };
 
   return (
@@ -76,13 +82,12 @@ function App() {
       <h1>Users</h1>
       <Table
         columns={columns}
-        dataSource={paginatedData}
+        dataSource={userData}
         onChange={onChange}
         pagination={{
+          onChange: handlePageChange,
           current: currentPage,
           pageSize: pageSize,
-          total: data.users.totalCount,
-          onChange: handlePageChange,
         }}
       />
     </div>
